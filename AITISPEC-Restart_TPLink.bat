@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Restart TP-Link
+title Restart TP-Link
 %1 start "" /min cmd /c "%~f0" :& exit/b
 :loop
 cls

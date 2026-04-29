@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Shutdown Timer
+title Shutdown Timer
 shutdown -a
 cls
 echo Таймер сброшен.

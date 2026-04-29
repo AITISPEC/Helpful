@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Anti Hidden
+title Anti Hidden
 pause
 dir /AS /B > list.txt
 FOR /F "eol=# tokens=1* delims=:" %%i in (list.txt) do (

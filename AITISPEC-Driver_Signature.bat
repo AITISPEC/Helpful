@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Проверка подписи и тестовый режим
+title Проверка подписи и тестовый режим
 
 :: Проверка прав администратора
 net session >nul 2>&1

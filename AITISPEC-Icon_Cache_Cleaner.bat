@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Icon Cache Cleaner
+title Icon Cache Cleaner
 openfiles > NUL 2>&1
 if NOT %ERRORLEVEL% EQU 0 goto NotAdmin
 goto menu

@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Windows Store and Apps Reset
+title Windows Store and Apps Reset
 openfiles > NUL 2>&1
 if NOT %ERRORLEVEL% EQU 0 (
     echo Требуются права администратора!

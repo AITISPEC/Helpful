@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Create Shortcut
+title Create Shortcut
 
 if "%1"=="" (
     echo Перетащите .exe файл на этот ярлык для создания ярлыка.

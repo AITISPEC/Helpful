@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - PreSleep Music
+title PreSleep Music
 cls
 where nircmd >nul 2>nul
 if %errorlevel% neq 0 (

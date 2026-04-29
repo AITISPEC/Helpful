@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - System Score
+title System Score
 :menu
 cls
 echo Change:

@@ -1,5 +1,5 @@
 @echo off
-title AITISPEC - Game DVR Timer
+title Game DVR Timer
 chcp 65001 >nul
 color a
 

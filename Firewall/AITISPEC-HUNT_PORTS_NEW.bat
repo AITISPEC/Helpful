@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title Hunt Showdown 1896: УПРАВЛЕНИЕ ПРАВИЛАМИ
+title Hunt Showdown 1896: Проброс портов
 
 :: Проверка прав администратора
 openfiles > NUL 2>&1
@@ -9,9 +9,9 @@ if NOT %ERRORLEVEL% EQU 0 goto NotAdmin
 
 :menu
 cls
-echo ==============================================
-echo    Hunt Showdown 1896 - Управление правилами
-echo ==============================================
+echo =========================================
+echo    Hunt Showdown 1896 - Проброс портов
+echo =========================================
 echo.
 echo   Запущено с правами администратора.
 echo.

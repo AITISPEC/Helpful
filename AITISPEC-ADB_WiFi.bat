@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - ADB Wi-fi
+title ADB Wi-fi
 :menu
 cls
 echo.

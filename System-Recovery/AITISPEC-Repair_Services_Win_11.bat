@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Repair Services Windows 11
+title Repair Services Windows 11
 
 :: Проверка прав администратора
 openfiles > NUL 2>&1

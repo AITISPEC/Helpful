@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Startup Folders
+title Startup Folders
 :menu
 cls
 echo Change folder:

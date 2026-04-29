@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 color a
-title AITISPEC - Включение Защитника Windows (WinDefend + wscsvc)
+title Включение Защитника Windows (WinDefend + wscsvc)
 
 :: Переход в папку скрипта
 cd /d "%~dp0"
