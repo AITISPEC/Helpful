@@ -21,12 +21,12 @@
 - **ОС:** Windows 10/11
 - **Права администратора** — обязательны (скрипт запросит сам)
 - **Основная программа:** установленный [zapret-discord-youtube](https://github.com/flowseal/zapret-discord-youtube/releases)
-- [**Cloudflare WARP**](https://developers.cloudflare.com/cloudflare-one/team-and-resources/devices/cloudflare-one-client/download) — опционально, только для `warp_masque.bat`
+- [**Cloudflare WARP**](https://developers.cloudflare.com/cloudflare-one/team-and-resources/devices/cloudflare-one-client/download) — опционально, только для `warp_masque.bat` (лежит в релизе с апдэйтэром)
 - **PowerShell 5.1+** (есть из коробки в Windows 10/11)
 
 ### 📥 Использование
 
-1. Распакуйте скрипт обновления в корень установленного zapret-discord-youtube.
+1. Распакуйте [скрипт обновления](https://github.com/AITISPEC/Helpful/releases/download/update-zdy/ZDY_Updater.zip) в корень установленного zapret-discord-youtube.
 2. Новую версию программы распакуйте в папку `update`.
 3. Запустите `update.bat`.
 
