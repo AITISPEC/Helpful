@@ -1,4 +1,4 @@
-## 🚀 v1.0.0 — Скрипты автоматического обновления zapret-discord-youtube
+## 🚀 v1.0.0 — Скрипт автоматического обновления zapret-discord-youtube
 
 ### 📦 Назначение
 Два скрипта для бесшовного обновления уже установленной версии [zapret-discord-youtube](https://github.com/flowseal/zapret-discord-youtube).  
@@ -29,4 +29,3 @@
 
 ### 🔗 Ссылки
 - Оригинальный проект: https://github.com/flowseal/zapret-discord-youtube
-- Исходники скриптов: [ссылка на твой репозиторий]
