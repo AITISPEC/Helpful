@@ -27,7 +27,7 @@
 ### 📥 Использование
 
 1. Распакуйте [скрипт обновления](https://github.com/AITISPEC/Helpful/releases/download/update-zdy/ZDY_Updater.zip) в корень установленного zapret-discord-youtube.
-2. Новую версию программы распакуйте в папку `update`.
+2. Новую версию запрета распакуйте в папку `update`.
 3. Запустите `update.bat`.
 
 ### 📁 Состав
