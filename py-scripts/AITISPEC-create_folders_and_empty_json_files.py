@@ -11,6 +11,6 @@ for i in range(1, 26):
 		file_path = os.path.join(folder_name, file_name)
 		# Создаем пустой json файл с помощью pass
 		with open(file_path, 'w', encoding='utf-8') as f:
-			pass
+			f.write('{}')
 
 print("Папки и пустые json файлы созданы успешно!")
