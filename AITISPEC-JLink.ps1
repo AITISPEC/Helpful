@@ -2,17 +2,30 @@
 .SYNOPSIS
     Создание junction-ссылки (символической) с автоматическим перемещением содержимого.
 .DESCRIPTION
-    Переносит файлы из исходной папки в целевую (на другом диске) и создаёт ссылку.
+    Переносит файлы из исходной папки в подпапку целевой (с именем исходной) и создаёт ссылку.
+    Имеет защиту от системных папок и ведёт лог.
 .NOTES
     Требуются права администратора. Запуск автоматически повышает привилегии.
 #>
 
+# ===== ЛОГИРОВАНИЕ =====
+$logFile = Join-Path $PSScriptRoot "JLink.log"
+try {
+    Start-Transcript -Path $logFile -Append -Force | Out-Null
+} catch {
+    # Если не можем писать рядом со скриптом, пишем в TEMP
+    $logFile = Join-Path $env:TEMP "JLink.log"
+    Start-Transcript -Path $logFile -Append -Force | Out-Null
+}
+
+# ===== ПРИНУДИТЕЛЬНЫЙ ЗАПУСК ОТ АДМИНИСТРАТОРА =====
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "🚀 Запуск от имени администратора..." -ForegroundColor Yellow
     Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
     exit
 }
 
+# ===== ПОДГОНЯЕМ РАЗМЕР ОКНА КОНСОЛИ =====
 try {
     $buf = $Host.UI.RawUI.BufferSize
     $buf.Width = 120
@@ -33,7 +46,7 @@ Write-Host @"
 ║   ██████    ██      ██      ██        ██   ██       ██       ██      ║
 ║   ██  ██   ████     ██     ████    ████    ██       █████    █████   ║
 ║                                                                      ║
-║                    JUNCTION LINK CREATOR v1.0.0                      ║
+║                    JUNCTION LINK CREATOR v1.0.1                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 "@ -ForegroundColor Cyan
 
@@ -72,6 +85,9 @@ $strings = @{
         ErrorMessageBox = "❌ НЕ УДАЛОСЬ СОЗДАТЬ ССЫЛКУ!`n`n{0}"
         ErrorTitle = "Ошибка"
         Finished = "`n🎉 Работа завершена."
+        SubfolderExistsTitle = "Подпапка существует"
+        SubfolderExistsMsg = "Папка '{0}' уже существует в целевой директории.`nПерезаписать её содержимое? (Все файлы будут заменены)"
+        SystemFolderError = "❌ ЗАПРЕЩЕНО! Нельзя переносить системные папки Windows.`nСписок запрещённых папок: Windows, Program Files, Program Files (x86), Users."
     }
     EN = @{
         Step1 = "📂 Step 1: Select source folder (where symlink will be)"
@@ -96,6 +112,9 @@ $strings = @{
         ErrorMessageBox = "❌ FAILED TO CREATE LINK!`n`n{0}"
         ErrorTitle = "Error"
         Finished = "`n🎉 Work completed."
+        SubfolderExistsTitle = "Subfolder exists"
+        SubfolderExistsMsg = "Folder '{0}' already exists in target location.`nOverwrite its contents? (All files will be replaced)"
+        SystemFolderError = "❌ FORBIDDEN! Cannot move Windows system folders.`nBlocked list: Windows, Program Files, Program Files (x86), Users."
     }
 }
 
@@ -127,8 +146,30 @@ function Select-Folder($Title) {
 Write-Host "`n$($msg.Step1)" -ForegroundColor Yellow
 $source = Select-Folder $msg.SelectSourceTitle
 
+# ===== ЗАЩИТА ОТ СИСТЕМНЫХ ПАПОК =====
+$systemFolders = @(
+    "$env:WINDIR",
+    "$env:ProgramFiles",
+    "${env:ProgramFiles(x86)}",
+    "$env:USERPROFILE"
+)
+# Нормализуем пути (убираем завершающий слеш)
+$sourceNormalized = $source.TrimEnd('\')
+if ($systemFolders | Where-Object { $sourceNormalized -eq $_.TrimEnd('\') }) {
+    Write-Host "`n$($msg.SystemFolderError)" -ForegroundColor Red
+    Play-ErrorSound
+    [System.Windows.Forms.MessageBox]::Show($msg.SystemFolderError, $msg.ErrorTitle, "OK", "Error")
+    exit
+}
+
 Write-Host "$($msg.Step2)" -ForegroundColor Yellow
 $target = Select-Folder $msg.SelectTargetTitle
+
+# ===== ОСНОВНАЯ ЛОГИКА (ВАРИАНТ 3) =====
+$sourceFolderName = Split-Path $source -Leaf
+$targetSubfolder = Join-Path $target $sourceFolderName
+
+Write-Host "`n📝 Лог сохраняется в: $logFile" -ForegroundColor DarkGray
 
 if (Test-Path "$source\*") {
     Write-Host "`n⚠️ $(if ($lang -eq "RU") { "Исходная папка не пуста." } else { "Source folder is not empty." })" -ForegroundColor Yellow
@@ -136,9 +177,22 @@ if (Test-Path "$source\*") {
     $result = [System.Windows.Forms.MessageBox]::Show($msg.SourceNotEmptyMsg, $msg.SourceNotEmptyTitle, "YesNoCancel", "Question")
 
     if ($result -eq "Yes") {
-        if (-not (Test-Path $target)) {
-            New-Item -ItemType Directory -Path $target | Out-Null
+        if (Test-Path $targetSubfolder) {
+            $overwrite = [System.Windows.Forms.MessageBox]::Show(
+                ($msg.SubfolderExistsMsg -f $sourceFolderName),
+                $msg.SubfolderExistsTitle,
+                "YesNo",
+                "Warning"
+            )
+            if ($overwrite -eq "No") {
+                Write-Host $msg.CancelMsg -ForegroundColor Red
+                Play-ErrorSound
+                exit
+            }
+            Remove-Item $targetSubfolder -Recurse -Force -ErrorAction SilentlyContinue
         }
+
+        New-Item -ItemType Directory -Path $targetSubfolder | Out-Null
         Write-Host $msg.MovingFiles -ForegroundColor Cyan
 
         $files = Get-ChildItem -Path $source -Recurse
@@ -147,11 +201,11 @@ if (Test-Path "$source\*") {
                 $percent = [math]::Round(($i / $files.Count) * 100)
                 $status = $msg.ProgressStatus -f ($i+1), $files.Count, $percent
                 Write-Progress -Activity $msg.MovingProgress -Status $status -PercentComplete $percent
-                Move-Item -Path $files[$i].FullName -Destination $target -Force -ErrorAction SilentlyContinue
+                Move-Item -Path $files[$i].FullName -Destination $targetSubfolder -Force -ErrorAction SilentlyContinue
             }
             Write-Progress -Activity $msg.MovingProgress -Completed
         } else {
-            Get-ChildItem -Path $source | Move-Item -Destination $target -Force
+            Get-ChildItem -Path $source | Move-Item -Destination $targetSubfolder -Force
         }
 
         Remove-Item $source -Recurse -Force
@@ -166,23 +220,27 @@ if (Test-Path "$source\*") {
         Play-ErrorSound
         exit
     }
-}
-
-if (Test-Path $source) {
-    Remove-Item $source -Force -ErrorAction SilentlyContinue
+} else {
+    Write-Host "`n📂 $(if ($lang -eq "RU") { "Исходная папка пуста. Создаётся ссылка на новую подпапку." } else { "Source folder is empty. Creating link to new subfolder." })" -ForegroundColor Cyan
+    if (Test-Path $source) {
+        Remove-Item $source -Force -ErrorAction SilentlyContinue
+    }
+    if (-not (Test-Path $targetSubfolder)) {
+        New-Item -ItemType Directory -Path $targetSubfolder | Out-Null
+    }
 }
 
 Write-Host $msg.CreatingJunction -ForegroundColor Cyan
 try {
-    $output = cmd /c mklink /J "$source" "$target" 2>&1
+    $output = cmd /c mklink /J "$source" "$targetSubfolder" 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host $msg.SuccessLink -ForegroundColor Green
         Write-Host "$($msg.SuccessSource)$source" -ForegroundColor White
-        Write-Host "$($msg.SuccessTarget)$target" -ForegroundColor White
+        Write-Host "$($msg.SuccessTarget)$targetSubfolder" -ForegroundColor White
 
         Play-SuccessSound
         [System.Windows.Forms.MessageBox]::Show(
-            ($msg.SuccessMessageBox -f $source, $target),
+            ($msg.SuccessMessageBox -f $source, $targetSubfolder),
             $msg.SuccessTitle,
             "OK",
             "Information"
@@ -202,4 +260,6 @@ try {
 }
 
 Write-Host $msg.Finished -ForegroundColor Yellow
+Write-Host "📄 Полный лог: $logFile" -ForegroundColor DarkGray
+Stop-Transcript | Out-Null
 pause > $null
