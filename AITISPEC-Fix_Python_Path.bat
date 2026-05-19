@@ -1,9 +1,10 @@
 <# : Choose-Your-Language
 @echo off
+color a
 chcp 65001 > nul
-echo ====================================================
-echo  Running Python PATH Fixer with Bypass...
-echo ====================================================
+echo =========================================
+echo       PYTHON PATH FIXER BY AITISPEC
+echo =========================================
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Expression (Get-Content '%~f0' -Raw)"
 exit /b
 #>
