@@ -1,0 +1,4 @@
+adb_path.txt
+*.apk
+*.log
+venv.ps1
